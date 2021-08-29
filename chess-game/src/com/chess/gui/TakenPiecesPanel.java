@@ -1,14 +1,11 @@
 package com.chess.gui;
 
-import com.chess.engine.board.Move;
-import com.chess.engine.pieces.Piece;
-import com.chess.gui.Table.MoveLog;
-import com.google.common.primitives.Ints;
-
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import javax.swing.border.EtchedBorder;
 import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -16,8 +13,18 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.border.EtchedBorder;
 
-public class TakenPiecesPanel extends JPanel {
+import com.chess.engine.board.Move;
+import com.chess.engine.pieces.Piece;
+import com.chess.gui.Table.MoveLog;
+import com.google.common.primitives.Ints;
+
+class TakenPiecesPanel extends JPanel {
 
     private final JPanel northPanel;
     private final JPanel southPanel;
@@ -28,7 +35,9 @@ public class TakenPiecesPanel extends JPanel {
     private final Dimension TAKEN_PIECES_DIMENSION = new Dimension(frameLength/10, (frameLength)* (2/15));
     private static final EtchedBorder PANEL_BORDER = new EtchedBorder(EtchedBorder.RAISED);
 
-    public TakenPiecesPanel(){
+    public int pieceIconLength = (int) (screenDimension.width*0.025);
+
+    public TakenPiecesPanel() {
         super(new BorderLayout());
         setBackground(COLOR_PANEL);
         setBorder(PANEL_BORDER);
@@ -41,72 +50,75 @@ public class TakenPiecesPanel extends JPanel {
         setPreferredSize(TAKEN_PIECES_DIMENSION);
     }
 
-    public void redo(final MoveLog moveLog){
+    public void redo(final MoveLog moveLog) {
         southPanel.removeAll();
         northPanel.removeAll();
-
+        
         final List<Piece> whiteTakenPieces = new ArrayList<>();
         final List<Piece> blackTakenPieces = new ArrayList<>();
-
-        for(final Move move: moveLog.getMoves()){
-            if(move.isAttack()){
+        
+        for(final Move move : moveLog.getMoves()) {
+            if(move.isAttack()) {
                 final Piece takenPiece = move.getAttackedPiece();
-                if(takenPiece.getPieceColor().isWhite()){
+                if(takenPiece.getPieceAllegiance().isWhite()) {
                     whiteTakenPieces.add(takenPiece);
-                }
-                else if (takenPiece.getPieceColor().isBlack()){
+                } else if(takenPiece.getPieceAllegiance().isBlack()){
                     blackTakenPieces.add(takenPiece);
-                }
-                else{
-                    throw new RuntimeException("NOT POSSIBLE TO REACH HERE");
+                } else {
+                    throw new RuntimeException("Should not reach here!");
                 }
             }
         }
 
         Collections.sort(whiteTakenPieces, new Comparator<Piece>() {
             @Override
-            public int compare(Piece o1, Piece o2) {
-                return Ints.compare(o1.getPieceValue(),o2.getPieceValue());
+            public int compare(final Piece p1, final Piece p2) {
+                return Ints.compare(p1.getPieceValue(), p2.getPieceValue());
             }
         });
+
         Collections.sort(blackTakenPieces, new Comparator<Piece>() {
             @Override
-            public int compare(Piece o1, Piece o2) {
-                return Ints.compare(o1.getPieceValue(),o2.getPieceValue());
+            public int compare(final Piece p1, final Piece p2) {
+                return Ints.compare(p1.getPieceValue(), p2.getPieceValue());
             }
         });
-
-        for (final Piece takenPiece : whiteTakenPieces){
-            try{
-                final BufferedImage image = ImageIO.read(new File("gui_elements/piece_icons/" +
-                        takenPiece.getPieceColor().toString().substring(0,1) +
-                        takenPiece.toString() + ".png"));
-                final ImageIcon icon = new ImageIcon(image);
-                final JLabel imageLabel = new JLabel(new ImageIcon(icon.getImage().getScaledInstance(
-                        icon.getIconWidth() - 725, icon.getIconWidth() - 725, Image.SCALE_SMOOTH)));
-                this.northPanel.add(imageLabel);
+        
+        for (final Piece takenPiece : whiteTakenPieces) {
+            try {
+                final BufferedImage image = ImageIO.read(new File("gui_elements/piece_icons/"
+                        + takenPiece.getPieceAllegiance().toString().substring(0, 1) + "" + takenPiece.toString()
+                        + ".png"));
+                this.southPanel.add(new JLabel(new ImageIcon(resize(image, pieceIconLength/2, pieceIconLength/2))));
             }
-            catch (final IOException e){
+            catch (final IOException e) {
                 e.printStackTrace();
             }
         }
 
-        for (final Piece takenPiece : blackTakenPieces){
-            try{
-                final BufferedImage image = ImageIO.read(new File("gui_elements/piece_icons/" +
-                        takenPiece.getPieceColor().toString().substring(0,1) +
-                        takenPiece.toString() + ".png"));
-                final ImageIcon icon = new ImageIcon(image);
-                final JLabel imageLabel = new JLabel(new ImageIcon(icon.getImage().getScaledInstance(
-                        icon.getIconWidth() - 725, icon.getIconWidth() - 725, Image.SCALE_SMOOTH)));
-                this.southPanel.add(imageLabel);
-            }
-            catch (final IOException e){
+        for (final Piece takenPiece : blackTakenPieces) {
+            try {
+                final BufferedImage image = ImageIO.read(new File("gui_elements/piece_icons/"
+                        + takenPiece.getPieceAllegiance().toString().substring(0, 1) + "" + takenPiece.toString()
+                        + ".png"));
+                this.northPanel.add(new JLabel(new ImageIcon(resize(image, pieceIconLength/2, pieceIconLength/2))));
+
+            } catch (final IOException e) {
                 e.printStackTrace();
             }
         }
-
+        
         validate();
     }
 
+    public BufferedImage resize(BufferedImage img, int newWidth, int newHeight) { 
+        Image tmp = img.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
+        BufferedImage resizedImage = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
+    
+        Graphics2D g2d = resizedImage.createGraphics();
+        g2d.drawImage(tmp, 0, 0, null);
+        g2d.dispose();
+    
+        return resizedImage;
+    }
 }

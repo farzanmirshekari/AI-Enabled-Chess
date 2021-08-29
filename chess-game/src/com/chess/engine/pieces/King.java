@@ -4,39 +4,38 @@ import com.chess.engine.Color;
 import com.chess.engine.board.Board;
 import com.chess.engine.board.BoardUtils;
 import com.chess.engine.board.Move;
-import com.chess.engine.board.Tile;
-import com.google.common.collect.ImmutableList;
+import com.chess.engine.board.Move.MajorAttackMove;
+import com.chess.engine.board.Move.MajorMove;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
-import static com.chess.engine.board.Move.*;
+public final class King extends Piece {
 
-public class King extends Piece {
-
-    private final int[] CANDIDATE_MOVE_CORD = {-9,-8,-7,-1,1,7,8,9};
+    private final static int[] CANDIDATE_MOVE_COORDINATES = { -9, -8, -7, -1, 1, 7, 8, 9 };
     private final boolean isCastled;
     private final boolean kingSideCastleCapable;
     private final boolean queenSideCastleCapable;
 
-    public King(final int piecePosition,
-                final Color Color,
+    public King(final Color Color,
+                final int piecePosition,
                 final boolean kingSideCastleCapable,
                 final boolean queenSideCastleCapable) {
-        super(piecePosition, Color, PieceType.KING, true);
+        super(PieceType.KING, Color, piecePosition, true);
         this.isCastled = false;
         this.kingSideCastleCapable = kingSideCastleCapable;
         this.queenSideCastleCapable = queenSideCastleCapable;
     }
 
-    public King(final int piecePosition,
-                final Color Color,
+    public King(final Color Color,
+                final int piecePosition,
                 final boolean isFirstMove,
                 final boolean isCastled,
                 final boolean kingSideCastleCapable,
                 final boolean queenSideCastleCapable) {
-        super(piecePosition, Color, PieceType.KING, isFirstMove);
+        super(PieceType.KING, Color, piecePosition, isFirstMove);
         this.isCastled = isCastled;
         this.kingSideCastleCapable = kingSideCastleCapable;
         this.queenSideCastleCapable = queenSideCastleCapable;
@@ -55,50 +54,76 @@ public class King extends Piece {
     }
 
     @Override
-    public Collection<Move> calculateLegalMoves(Board board) {
+    public Collection<Move> calculateLegalMoves(final Board board) {
         final List<Move> legalMoves = new ArrayList<>();
-        for(final int candidateOffset : CANDIDATE_MOVE_CORD){
-            final int candidateDestinationCoord = this.piecePos + candidateOffset;
-
-            if(isFirstColumnExclusion(this.piecePos,candidateOffset) ||
-                    isEighthColumnExclusion(this.piecePos,candidateOffset)){
+        for (final int currentCandidateOffset : CANDIDATE_MOVE_COORDINATES) {
+            if (isFirstColumnExclusion(this.piecePosition, currentCandidateOffset) ||
+                isEighthColumnExclusion(this.piecePosition, currentCandidateOffset)) {
                 continue;
             }
-
-            if(BoardUtils.isValidTileCoord(candidateDestinationCoord)){
-                final Tile candidateDestTile = board.getTile(candidateDestinationCoord);
-                if(!candidateDestTile.isTileOccupied()){
-                    legalMoves.add(new MajorMove(board,this,candidateDestinationCoord));
-                }
-                else{
-                    final Piece pieceOnTile = candidateDestTile.getPiece();
-                    final Color pieceColor = pieceOnTile.getPieceColor();
-                    if(this.pieceColor != pieceColor){
-                        legalMoves.add(new MajorAttackMove(board,this,candidateDestinationCoord,pieceOnTile));
+            final int candidateDestinationCoordinate = this.piecePosition + currentCandidateOffset;
+            if (BoardUtils.isValidTileCoordinate(candidateDestinationCoordinate)) {
+                final Piece pieceAtDestination = board.getPiece(candidateDestinationCoordinate);
+                if (pieceAtDestination == null) {
+                    legalMoves.add(new MajorMove(board, this, candidateDestinationCoordinate));
+                } else {
+                    final Color pieceAtDestinationAllegiance = pieceAtDestination.getPieceAllegiance();
+                    if (this.pieceColor != pieceAtDestinationAllegiance) {
+                        legalMoves.add(new MajorAttackMove(board, this, candidateDestinationCoordinate,
+                                pieceAtDestination));
                     }
                 }
             }
         }
-        return ImmutableList.copyOf(legalMoves);
+        return Collections.unmodifiableList(legalMoves);
     }
 
     @Override
-    public King movePiece(Move move) {
-        return new King(move.getDestinationCoord(),move.getMovedPiece().getPieceColor(),
-                false, move.isCastlingMove(), false, false);
+    public String toString() {
+        return this.pieceType.toString();
     }
 
     @Override
-    public String toString(){
-        return PieceType.KING.toString();
+    public int locationBonus() {
+        return this.pieceColor.kingBonus(this.piecePosition);
     }
 
-    private static boolean isFirstColumnExclusion(final int currentPos,final int candidateOffset){
-        return BoardUtils.FIRST_COLUMN[currentPos] && ( candidateOffset == -1 || candidateOffset == -9 ||
-                candidateOffset == 7);
+    @Override
+    public King movePiece(final Move move) {
+        return new King(this.pieceColor, move.getDestinationCoordinate(), false, move.isCastlingMove(), false, false);
     }
-    private static boolean isEighthColumnExclusion(final int currentPos,final int candidateOffset){
-        return BoardUtils.EIGHTH_COLUMN[currentPos] && (candidateOffset == 1 || candidateOffset == -7 ||
-                candidateOffset == 9);
+
+    @Override
+    public boolean equals(final Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (!(other instanceof King)) {
+            return false;
+        }
+        if (!super.equals(other)) {
+            return false;
+        }
+        final King king = (King) other;
+        return isCastled == king.isCastled;
+    }
+
+    @Override
+    public int hashCode() {
+        return (31 * super.hashCode()) + (isCastled ? 1 : 0);
+    }
+
+    private static boolean isFirstColumnExclusion(final int currentCandidate,
+                                                  final int candidateDestinationCoordinate) {
+        return BoardUtils.INSTANCE.FIRST_COLUMN.get(currentCandidate)
+                && ((candidateDestinationCoordinate == -9) || (candidateDestinationCoordinate == -1) ||
+                (candidateDestinationCoordinate == 7));
+    }
+
+    private static boolean isEighthColumnExclusion(final int currentCandidate,
+                                                   final int candidateDestinationCoordinate) {
+        return BoardUtils.INSTANCE.EIGHTH_COLUMN.get(currentCandidate)
+                && ((candidateDestinationCoordinate == -7) || (candidateDestinationCoordinate == 1) ||
+                (candidateDestinationCoordinate == 9));
     }
 }

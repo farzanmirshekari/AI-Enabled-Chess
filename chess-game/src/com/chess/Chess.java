@@ -1,16 +1,10 @@
 package com.chess;
 
-import com.chess.engine.board.Board;
 import com.chess.gui.Table;
 
 public class Chess {
 
-    public static void  main(String args[]){
-        Board board = Board.createStandardBoard();
-
-        System.out.println(board);
-
-        new Table();
+    public static void main(final String[] args) throws Exception {
+        Table.get().show();
     }
-
 }

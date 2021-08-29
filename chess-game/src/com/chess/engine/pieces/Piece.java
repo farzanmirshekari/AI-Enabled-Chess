@@ -8,142 +8,90 @@ import java.util.Collection;
 
 public abstract class Piece {
 
-    protected final PieceType pieceType;
-    protected final int piecePos;
-    protected final Color pieceColor;
-    protected final boolean isFirstMove;
+    final PieceType pieceType;
+    final Color pieceColor;
+    final int piecePosition;
+    private final boolean isFirstMove;
     private final int cachedHashCode;
 
-    Piece(final int piecePos,final Color pieceColor,final PieceType pieceType,final boolean isFirstMove){
-        this.piecePos = piecePos;
-        this.pieceColor = pieceColor;
-        this.pieceType = pieceType;
-
+    Piece(final PieceType type,
+          final Color Color,
+          final int piecePosition,
+          final boolean isFirstMove) {
+        this.pieceType = type;
+        this.piecePosition = piecePosition;
+        this.pieceColor = Color;
         this.isFirstMove = isFirstMove;
         this.cachedHashCode = computeHashCode();
     }
 
-    private int computeHashCode() {
-        int result = pieceType.hashCode();
-        result = 31 * result + pieceColor.hashCode();
-        result = 31 * result + piecePos;
-        result = 31 * result + (isFirstMove ? 1 : 0);
-        return result;
+    public PieceType getPieceType() {
+        return this.pieceType;
     }
 
-    @Override
-    public boolean equals(final Object other){
-        if(this == other){
-            return true;
-        }
-        if(!(other instanceof Piece)){
-            return false;
-        }
-        final Piece otherPiece = (Piece) other;
-        return piecePos == otherPiece.getPiecePosition() && pieceType == otherPiece.getPieceType()
-                && pieceColor == otherPiece.getPieceColor() && isFirstMove == otherPiece.isFirstMove();
-    }
-
-    public int getPieceValue(){
-        return this.pieceType.getPieceValue();
-    }
-
-    @Override
-    public int hashCode(){
-        return this.cachedHashCode;
-    }
-
-    public boolean isFirstMove(){
-        return this.isFirstMove;
-    }
-
-    public int getPiecePosition(){return this.piecePos; }
-
-    public Color getPieceColor(){
+    public Color getPieceAllegiance() {
         return this.pieceColor;
     }
 
-    public abstract Collection<Move> calculateLegalMoves(final Board board);
+    public int getPiecePosition() {
+        return this.piecePosition;
+    }
 
-    public PieceType getPieceType() { return this.pieceType; }
+    public boolean isFirstMove() {
+        return this.isFirstMove;
+    }
+
+    public int getPieceValue() {
+        return this.pieceType.getPieceValue();
+    }
+
+    public abstract int locationBonus();
 
     public abstract Piece movePiece(Move move);
 
+    public abstract Collection<Move> calculateLegalMoves(final Board board);
+
+
+    @Override
+    public boolean equals(final Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (!(other instanceof Piece)) {
+            return false;
+        }
+        final Piece otherPiece = (Piece) other;
+        return this.piecePosition == otherPiece.piecePosition && this.pieceType == otherPiece.pieceType &&
+               this.pieceColor == otherPiece.pieceColor && this.isFirstMove == otherPiece.isFirstMove;
+    }
+
+    @Override
+    public int hashCode() {
+        return this.cachedHashCode;
+    }
+
+    private int computeHashCode() {
+        int result = this.pieceType.hashCode();
+        result = 31 * result + this.pieceColor.hashCode();
+        result = 31 * result + this.piecePosition;
+        result = 31 * result + (this.isFirstMove ? 1 : 0);
+        return result;
+    }
+
     public enum PieceType {
 
-        BISHOP("B",300){
-            @Override
-            public boolean isKing() {
-                return false;
-            }
+        PAWN(100, "P"),
+        KNIGHT(300, "N"),
+        BISHOP(330, "B"),
+        ROOK(500, "R"),
+        QUEEN(900, "Q"),
+        KING(10000, "K");
 
-            @Override
-            public boolean isRook() {
-                return false;
-            }
-        },
-        KING("K",10000) {
-            @Override
-            public boolean isKing() {
-                return true;
-            }
+        private final int value;
+        private final String pieceName;
 
-            @Override
-            public boolean isRook() {
-                return false;
-            }
-        },
-        KNIGHT("N",300) {
-            @Override
-            public boolean isKing() {
-                return false;
-            }
-
-            @Override
-            public boolean isRook() {
-                return false;
-            }
-        },
-        PAWN("P",100) {
-            @Override
-            public boolean isKing() {
-                return false;
-            }
-
-            @Override
-            public boolean isRook() {
-                return false;
-            }
-        },
-        QUEEN("Q",900) {
-            @Override
-            public boolean isKing() {
-                return false;
-            }
-
-            @Override
-            public boolean isRook() {
-                return false;
-            }
-        },
-        ROOK("R",500) {
-            @Override
-            public boolean isKing() {
-                return false;
-            }
-
-            @Override
-            public boolean isRook() {
-                return true;
-            }
-        };
-
-        private String pieceName;
-        private int pieceValue;
-
-        PieceType(String pieceName, final int pieceValue) {
-            this.pieceName = pieceName;
-            this.pieceValue = pieceValue;
+        public int getPieceValue() {
+            return this.value;
         }
 
         @Override
@@ -151,12 +99,12 @@ public abstract class Piece {
             return this.pieceName;
         }
 
-        public abstract boolean isKing();
-        public abstract boolean isRook();
+        PieceType(final int val,
+                  final String pieceName) {
+            this.value = val;
+            this.pieceName = pieceName;
+        }
 
-        public int getPieceValue(){
-            return this.pieceValue;
-        };
     }
 
 }

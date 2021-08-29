@@ -4,77 +4,85 @@ import com.chess.engine.Color;
 import com.chess.engine.board.Board;
 import com.chess.engine.board.BoardUtils;
 import com.chess.engine.board.Move;
-import com.chess.engine.board.Tile;
-import com.google.common.collect.ImmutableList;
+import com.chess.engine.board.Move.MajorAttackMove;
+import com.chess.engine.board.Move.MajorMove;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
-import static com.chess.engine.board.Move.*;
+public final class Queen extends Piece {
 
-public class Queen extends Piece {
+    private final static int[] CANDIDATE_MOVE_COORDINATES = { -9, -8, -7, -1, 1,
+        7, 8, 9 };
 
-    final static int[] CANDIDATE_MOVE_VECTOR_COORD = {-9,-8,-7,-1,1,7,8,9};
-
-    public Queen(int piecePos, Color pieceColor) {
-        super(piecePos, pieceColor,PieceType.QUEEN,true);
+    public Queen(final Color Color, final int piecePosition) {
+        super(PieceType.QUEEN, Color, piecePosition, true);
     }
 
-    public Queen(int piecePos, Color pieceColor, boolean isFirstMove) {
-        super(piecePos, pieceColor, PieceType.QUEEN, isFirstMove);
+    public Queen(final Color Color,
+                 final int piecePosition,
+                 final boolean isFirstMove) {
+        super(PieceType.QUEEN, Color, piecePosition, isFirstMove);
     }
 
     @Override
-    public Collection<Move> calculateLegalMoves(Board board) {
+    public Collection<Move> calculateLegalMoves(final Board board) {
         final List<Move> legalMoves = new ArrayList<>();
-        for (final int candidateCoordinateOffset: CANDIDATE_MOVE_VECTOR_COORD){
-
-            int candidateDestinationCoord = this.piecePos;
-            while(BoardUtils.isValidTileCoord(candidateDestinationCoord)){
-                if(isFirstColumnExclusion(candidateDestinationCoord,candidateCoordinateOffset)
-                        ||isEighthColumnExclusion(candidateDestinationCoord,candidateCoordinateOffset)){
+        for (final int currentCandidateOffset : CANDIDATE_MOVE_COORDINATES) {
+            int candidateDestinationCoordinate = this.piecePosition;
+            while (true) {
+                if (isFirstColumnExclusion(currentCandidateOffset, candidateDestinationCoordinate) ||
+                    isEightColumnExclusion(currentCandidateOffset, candidateDestinationCoordinate)) {
                     break;
                 }
-                candidateDestinationCoord += candidateCoordinateOffset;
-                if(BoardUtils.isValidTileCoord(candidateDestinationCoord)){
-                    final Tile candidateDestinationTile = board.getTile(candidateDestinationCoord);
-                    if(!candidateDestinationTile.isTileOccupied()){
-                        legalMoves.add(new MajorMove(board,this,candidateDestinationCoord));
-                    }
-                    else{
-                        final Piece pieceAtDestination = candidateDestinationTile.getPiece  ();
-                        final Color pieceColor = pieceAtDestination.getPieceColor();
-                        if(this.pieceColor != pieceColor){
-                            legalMoves.add(new MajorAttackMove(board,this,candidateDestinationCoord,
+                candidateDestinationCoordinate += currentCandidateOffset;
+                if (!BoardUtils.isValidTileCoordinate(candidateDestinationCoordinate)) {
+                    break;
+                } else {
+                    final Piece pieceAtDestination = board.getPiece(candidateDestinationCoordinate);
+                    if (pieceAtDestination == null) {
+                        legalMoves.add(new MajorMove(board, this, candidateDestinationCoordinate));
+                    } else {
+                        final Color pieceAtDestinationAllegiance = pieceAtDestination.getPieceAllegiance();
+                        if (this.pieceColor != pieceAtDestinationAllegiance) {
+                            legalMoves.add(new MajorAttackMove(board, this, candidateDestinationCoordinate,
                                     pieceAtDestination));
                         }
                         break;
                     }
-
                 }
             }
-
         }
-        return ImmutableList.copyOf(legalMoves);
+        return Collections.unmodifiableList(legalMoves);
     }
 
     @Override
-    public Queen movePiece(Move move) {
-        return new Queen(move.getDestinationCoord(),move.getMovedPiece().getPieceColor());
+    public int locationBonus() {
+        return this.pieceColor.queenBonus(this.piecePosition);
     }
 
     @Override
-    public String toString(){
-        return PieceType.QUEEN.toString();
+    public Queen movePiece(final Move move) {
+        return PieceUtils.INSTANCE.getMovedQueen(move.getMovedPiece().getPieceAllegiance(), move.getDestinationCoordinate());
     }
 
-    private static boolean isFirstColumnExclusion(final int currentPos,final int candidateOffset){
-        return BoardUtils.FIRST_COLUMN[currentPos] && ( candidateOffset == -1 || candidateOffset == -9 ||
-                                                        candidateOffset == 7);
+    @Override
+    public String toString() {
+        return this.pieceType.toString();
     }
-    private static boolean isEighthColumnExclusion(final int currentPos,final int candidateOffset){
-        return BoardUtils.EIGHTH_COLUMN[currentPos] && (candidateOffset == 1 || candidateOffset == -7 ||
-                                                        candidateOffset == 9);
+
+    private static boolean isFirstColumnExclusion(final int currentPosition,
+                                                  final int candidatePosition) {
+        return BoardUtils.INSTANCE.FIRST_COLUMN.get(candidatePosition) && ((currentPosition == -9)
+                || (currentPosition == -1) || (currentPosition == 7));
     }
+
+    private static boolean isEightColumnExclusion(final int currentPosition,
+                                                  final int candidatePosition) {
+        return BoardUtils.INSTANCE.EIGHTH_COLUMN.get(candidatePosition) && ((currentPosition == -7)
+                || (currentPosition == 1) || (currentPosition == 9));
+    }
+
 }
