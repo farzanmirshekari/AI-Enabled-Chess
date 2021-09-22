@@ -3,3 +3,7 @@ This is an AI-enabled chess engine developed using a depth-limited MiniMax algor
 <img src = "./chess-demo.png" width=60% > 
 </p>  
 In order to play a game, simply navigate to "Options" and select "Setup Game" like so:
+<p align = "center">
+<img src = "./chess-setup-demo.png" width=20% > 
+</p>
+From here, select the setup you prefer and play on!
