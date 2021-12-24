@@ -386,7 +386,7 @@ public abstract class Move {
             }
             builder.setPiece(this.movedPiece.movePiece(this));
             //calling movePiece here doesn't work, we need to explicitly create a new Rook
-            builder.setPiece(new Rook(this.castleRook.getPieceAllegiance(), this.castleRookDestination, false));
+            builder.setPiece(new Rook(this.castleRook.getPieceColor(), this.castleRookDestination, false));
             builder.setMoveMaker(this.board.currentPlayer().getOpponent().getColor());
             builder.setMoveTransition(this);
             return builder.build();

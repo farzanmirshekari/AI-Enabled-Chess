@@ -41,8 +41,8 @@ public final class Rook extends Piece {
                     if (pieceAtDestination == null) {
                         legalMoves.add(new MajorMove(board, this, candidateDestinationCoordinate));
                     } else {
-                        final Color pieceAtDestinationAllegiance = pieceAtDestination.getPieceAllegiance();
-                        if (this.pieceColor != pieceAtDestinationAllegiance) {
+                        final Color pieceAtDestinationColor = pieceAtDestination.getPieceColor();
+                        if (this.pieceColor != pieceAtDestinationColor) {
                             legalMoves.add(new MajorAttackMove(board, this, candidateDestinationCoordinate,
                                     pieceAtDestination));
                         }
@@ -61,7 +61,7 @@ public final class Rook extends Piece {
 
     @Override
     public Rook movePiece(final Move move) {
-        return PieceUtils.INSTANCE.getMovedRook(move.getMovedPiece().getPieceAllegiance(), move.getDestinationCoordinate());
+        return PieceUtils.INSTANCE.getMovedRook(move.getMovedPiece().getPieceColor(), move.getDestinationCoordinate());
     }
 
     @Override

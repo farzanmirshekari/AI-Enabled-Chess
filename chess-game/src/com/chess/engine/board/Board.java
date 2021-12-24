@@ -55,7 +55,7 @@ public final class Board {
 
     private static String prettyPrint(final Piece piece) {
         if(piece != null) {
-            return piece.getPieceAllegiance().isBlack() ?
+            return piece.getPieceColor().isBlack() ?
                    piece.toString().toLowerCase() : piece.toString();
         }
         return "-";
@@ -157,7 +157,7 @@ public final class Board {
     private static Collection<Piece> calculateActivePieces(final Builder builder,
                                                            final Color Color) {
         return builder.boardConfig.values().stream()
-               .filter(piece -> piece.getPieceAllegiance() == Color)
+               .filter(piece -> piece.getPieceColor() == Color)
                .collect(Collectors.toList());
     }
 

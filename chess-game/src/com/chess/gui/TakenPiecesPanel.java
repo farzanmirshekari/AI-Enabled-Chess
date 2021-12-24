@@ -60,9 +60,9 @@ class TakenPiecesPanel extends JPanel {
         for(final Move move : moveLog.getMoves()) {
             if(move.isAttack()) {
                 final Piece takenPiece = move.getAttackedPiece();
-                if(takenPiece.getPieceAllegiance().isWhite()) {
+                if(takenPiece.getPieceColor().isWhite()) {
                     whiteTakenPieces.add(takenPiece);
-                } else if(takenPiece.getPieceAllegiance().isBlack()){
+                } else if(takenPiece.getPieceColor().isBlack()){
                     blackTakenPieces.add(takenPiece);
                 } else {
                     throw new RuntimeException("Should not reach here!");
@@ -86,8 +86,8 @@ class TakenPiecesPanel extends JPanel {
         
         for (final Piece takenPiece : whiteTakenPieces) {
             try {
-                final BufferedImage image = ImageIO.read(new File("gui_elements/piece_icons/"
-                        + takenPiece.getPieceAllegiance().toString().substring(0, 1) + "" + takenPiece.toString()
+                final BufferedImage image = ImageIO.read(new File("chess-game/gui_elements/piece_icons/"
+                        + takenPiece.getPieceColor().toString().substring(0, 1) + "" + takenPiece.toString()
                         + ".png"));
                 this.southPanel.add(new JLabel(new ImageIcon(resize(image, pieceIconLength/2, pieceIconLength/2))));
             }
@@ -98,8 +98,8 @@ class TakenPiecesPanel extends JPanel {
 
         for (final Piece takenPiece : blackTakenPieces) {
             try {
-                final BufferedImage image = ImageIO.read(new File("gui_elements/piece_icons/"
-                        + takenPiece.getPieceAllegiance().toString().substring(0, 1) + "" + takenPiece.toString()
+                final BufferedImage image = ImageIO.read(new File("chess-game/gui_elements/piece_icons/"
+                        + takenPiece.getPieceColor().toString().substring(0, 1) + "" + takenPiece.toString()
                         + ".png"));
                 this.northPanel.add(new JLabel(new ImageIcon(resize(image, pieceIconLength/2, pieceIconLength/2))));
 

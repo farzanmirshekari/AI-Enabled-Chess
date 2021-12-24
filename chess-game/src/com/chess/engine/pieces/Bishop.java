@@ -44,7 +44,7 @@ public final class Bishop extends Piece {
                         legalMoves.add(new MajorMove(board, this, candidateDestinationCoordinate));
                     }
                     else {
-                        final Color pieceColor = pieceAtDestination.getPieceAllegiance();
+                        final Color pieceColor = pieceAtDestination.getPieceColor();
                         if (this.pieceColor != pieceColor) {
                             legalMoves.add(new MajorAttackMove(board, this, candidateDestinationCoordinate,
                                     pieceAtDestination));
@@ -64,7 +64,7 @@ public final class Bishop extends Piece {
 
     @Override
     public Bishop movePiece(final Move move) {
-        return PieceUtils.INSTANCE.getMovedBishop(move.getMovedPiece().getPieceAllegiance(), move.getDestinationCoordinate());
+        return PieceUtils.INSTANCE.getMovedBishop(move.getMovedPiece().getPieceColor(), move.getDestinationCoordinate());
     }
 
     @Override

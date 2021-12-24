@@ -105,7 +105,7 @@ public enum  BoardUtils {
         final Piece piece = board.getPiece(frontTile);
         return piece != null &&
                piece.getPieceType() == Piece.PieceType.PAWN &&
-               piece.getPieceAllegiance() != king.getPieceAllegiance();
+               piece.getPieceColor() != king.getPieceColor();
     }
 
     public static int mvvlva(final Move move) {

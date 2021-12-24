@@ -29,7 +29,7 @@ public abstract class Piece {
         return this.pieceType;
     }
 
-    public Color getPieceAllegiance() {
+    public Color getPieceColor() {
         return this.pieceColor;
     }
 

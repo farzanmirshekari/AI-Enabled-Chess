@@ -59,7 +59,7 @@ public final class Table extends Observable {
         this.chessBoard = Board.createStandardBoard();
         this.boardDirection = BoardDirection.NORMAL;
         this.highlightLegalMoves = false;
-        this.pieceIconPath = "gui_elements/piece_icons/";
+        this.pieceIconPath = "chess-game/gui_elements/piece_icons/";
         this.gameHistoryPanel = new GameHistoryPanel();
         this.debugPanel = new DebugPanel();
         this.takenPiecesPanel = new TakenPiecesPanel();
@@ -582,7 +582,7 @@ public final class Table extends Observable {
 
         private void highlightTileBorder(final Board board) {
             if(humanMovedPiece != null &&
-               humanMovedPiece.getPieceAllegiance() == board.currentPlayer().getColor() &&
+               humanMovedPiece.getPieceColor() == board.currentPlayer().getColor() &&
                humanMovedPiece.getPiecePosition() == this.tileId) {
                 setBorder(BorderFactory.createLineBorder(Color.RED, 4));
             } else {
@@ -611,7 +611,7 @@ public final class Table extends Observable {
         }
 
         private Collection<Move> pieceLegalMoves(final Board board) {
-            if(humanMovedPiece != null && humanMovedPiece.getPieceAllegiance() == board.currentPlayer().getColor()) {
+            if(humanMovedPiece != null && humanMovedPiece.getPieceColor() == board.currentPlayer().getColor()) {
                 return humanMovedPiece.calculateLegalMoves(board);
             }
             return Collections.emptyList();
@@ -622,7 +622,7 @@ public final class Table extends Observable {
             if(board.getPiece(this.tileId) != null) {
                 try{
                     final BufferedImage image = ImageIO.read(new File(pieceIconPath +
-                            board.getPiece(this.tileId).getPieceAllegiance().toString().substring(0, 1) + "" +
+                            board.getPiece(this.tileId).getPieceColor().toString().substring(0, 1) + "" +
                             board.getPiece(this.tileId).toString() +
                             ".png"));
                     add(new JLabel(new ImageIcon(Table.this.resize(image, pieceIconLength, pieceIconLength))));

@@ -16,9 +16,9 @@ public final class Pawn
 
     private final static int[] CANDIDATE_MOVE_COORDINATES = {8, 16, 7, 9};
 
-    public Pawn(final Color allegiance,
+    public Pawn(final Color Color,
                 final int piecePosition) {
-        super(PieceType.PAWN, allegiance, piecePosition, true);
+        super(PieceType.PAWN, Color, piecePosition, true);
     }
 
     public Pawn(final Color Color,
@@ -71,7 +71,7 @@ public final class Pawn
                       (BoardUtils.INSTANCE.FIRST_COLUMN.get(this.piecePosition) && this.pieceColor.isBlack()))) {
                 if(board.getPiece(candidateDestinationCoordinate) != null) {
                     final Piece pieceOnCandidate = board.getPiece(candidateDestinationCoordinate);
-                    if (this.pieceColor != pieceOnCandidate.getPieceAllegiance()) {
+                    if (this.pieceColor != pieceOnCandidate.getPieceColor()) {
                         if (this.pieceColor.isPawnPromotionSquare(candidateDestinationCoordinate)) {
                             legalMoves.add(new PawnPromotion(
                                     new PawnAttackMove(board, this, candidateDestinationCoordinate, pieceOnCandidate), PieceUtils.INSTANCE.getMovedQueen(this.pieceColor, candidateDestinationCoordinate)));
@@ -90,7 +90,7 @@ public final class Pawn
                 } else if (board.getEnPassantPawn() != null && board.getEnPassantPawn().getPiecePosition() ==
                            (this.piecePosition + (this.pieceColor.getOppositeDirection()))) {
                     final Piece pieceOnCandidate = board.getEnPassantPawn();
-                    if (this.pieceColor != pieceOnCandidate.getPieceAllegiance()) {
+                    if (this.pieceColor != pieceOnCandidate.getPieceColor()) {
                         legalMoves.add(
                                 new PawnEnPassantAttack(board, this, candidateDestinationCoordinate, pieceOnCandidate));
 
@@ -102,7 +102,7 @@ public final class Pawn
                       (BoardUtils.INSTANCE.EIGHTH_COLUMN.get(this.piecePosition) && this.pieceColor.isBlack()))) {
                 if(board.getPiece(candidateDestinationCoordinate) != null) {
                     if (this.pieceColor !=
-                            board.getPiece(candidateDestinationCoordinate).getPieceAllegiance()) {
+                            board.getPiece(candidateDestinationCoordinate).getPieceColor()) {
                         if (this.pieceColor.isPawnPromotionSquare(candidateDestinationCoordinate)) {
                             legalMoves.add(new PawnPromotion(
                                     new PawnAttackMove(board, this, candidateDestinationCoordinate,
@@ -126,7 +126,7 @@ public final class Pawn
                 } else if (board.getEnPassantPawn() != null && board.getEnPassantPawn().getPiecePosition() ==
                         (this.piecePosition - (this.pieceColor.getOppositeDirection()))) {
                     final Piece pieceOnCandidate = board.getEnPassantPawn();
-                    if (this.pieceColor != pieceOnCandidate.getPieceAllegiance()) {
+                    if (this.pieceColor != pieceOnCandidate.getPieceColor()) {
                         legalMoves.add(
                                 new PawnEnPassantAttack(board, this, candidateDestinationCoordinate, pieceOnCandidate));
 
@@ -144,7 +144,7 @@ public final class Pawn
 
     @Override
     public Pawn movePiece(final Move move) {
-        return PieceUtils.INSTANCE.getMovedPawn(move.getMovedPiece().getPieceAllegiance(), move.getDestinationCoordinate());
+        return PieceUtils.INSTANCE.getMovedPawn(move.getMovedPiece().getPieceColor(), move.getDestinationCoordinate());
     }
 
 }
